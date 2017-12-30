@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>轮播</title>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			ul{
+				list-style: none;
+			}
+			.pptbox{
+				height: 200px;
+				width: 300px;
+				background:greenyellow;
+				position: relative;
+				overflow: hidden;
+				margin: 50px;
+				display: none;
+			}
+			.pptbox .pptlist{
+				width: 1800px;
+				position: absolute;
+				left: -300px;
+				
+			}
+			.pptbox .pptlist img{
+				width: 1000px;
+				
+				
+			}
+			.pptbox .pptlist li{
+				height: 200px;
+				width: 300px;
+				background: #ff6600;
+				float: left;
+			}
+			.pptbox  span{
+				display: block;
+				height: 60px;
+				width: 30px;
+				background: rgba(0,0,0,0.8) url(img/nav.png) no-repeat ;
+				position: absolute;
+				top: calc(50% - 30px);
+			}
+			.pptbox  span.btnleft{
+				left: 0;
+				background-position: -5px 8px;
+			}
+			.pptbox  span.btnright{
+				right: 0;
+				background-position: -47px 8px;
+			}
+			.pptbox  .controls{
+				width: 100px;
+				position: absolute;
+				bottom: 0;
+				left: 100px;
+				
+			}
+			.pptbox  .controls li{
+				width: 20px;
+				height: 20px;
+				border-radius: 10px;
+				margin-right: 5px;
+				background: red;
+				float: left;
+				text-align: center;
+				color: white;
+			}
+			.pptbox  .controls li.current{
+				
+				background: #D1D1D1;
+				color: #000;
+				
+			}
+		</style>
+	</head>
+	<body>
+		<div class="pptbox">
+			<ul class="pptlist">
+				<li><img src="img/1.jpg"/></li>
+				<li><img src="img/2.jpg"/></li>
+				<li><img src="img/3.jpg"/></li>
+				<li><img src="img/1 (1).jpg"/></li>
+			</ul>
+			<ul class="controls">
+				<li class="current">1</li>
+				<li>2</li>
+				<li>3</li>
+				<li>4</li>
+			</ul>
+			
+			<span class="btnleft"></span>
+			<span  class="btnright"></span>
+			
+			
+		</div>
+		
+		
+		<script src="js/jquery-1.11.0.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			
+			
+			
+			
+			var pptwidth=1000;
+			var pptheight=500;
+			$(".pptbox").show();
+			
+			var firstli=$(".pptbox ul.pptlist>li:first").clone();
+			var lastli=$(".pptbox ul.pptlist>li:last").clone();
+			
+			$(".pptbox").css({"width":pptwidth,"height":pptheight});
+			$(".pptbox ul.pptlist").append(firstli);//把第一个li拷贝后放到最后面
+			$(".pptbox ul.pptlist").prepend(lastli);//把最后一个li拷贝后放在最前面
+			$(".pptbox ul.pptlist>li").css({"width":pptwidth,"height":pptheight});
+			
+			
+			var licount=$(".pptbox ul.pptlist>li").length;
+			
+			$(".pptbox ul.pptlist").css({"width":pptwidth*licount+"px","left":-pptwidth}).show();
+			var controlsleft=(pptwidth-30*(licount-2))/2;
+			$(".pptbox ul.controls").css({"width":30*(licount-2)+"px","left":controlsleft+"px"}).show();
+			
+			$(".pptbox span").css({"top":(pptheight-60)/2});
+			
+			
+			var k=1;
+			
+			$(".pptbox span.btnright").click(function(){
+				this.onselectstart=function(){
+					return false;
+				};
+				
+				if(!$(".pptbox ul.pptlist").is(":animated"))
+				{
+					k++;
+					pptplay();
+				}
+			});
+			
+			$(".pptbox span.btnleft").click(function(){
+				this.onselectstart=function(){
+					return false;
+				};
+				
+				if(!$(".pptbox ul.pptlist").is(":animated"))
+				{
+					k--;
+					pptplay();
+				}
+			});
+			
+			function pptplay()
+			{
+				if(k>(licount-1))
+				{
+					k=licount-1;
+				}
+				if(k<0)
+				{
+					k=0;
+				}
+				
+				var dx=-pptwidth*k;
+				
+				
+				var c=k-1; 
+				if(k==0 || k==(licount-2))
+				{
+						c=(licount-3);
+				}
+				if(k==1 || k==(licount-1))
+				{
+					c=0;
+				}		
+				
+				$(".pptbox ul.controls>li").eq(c).addClass("current").siblings().removeClass("current");
+				$(".pptbox ul.pptlist").stop(true,true).animate({"left":dx},function(){
+					//每当动画执行完毕的时候，都会执行此处的代码
+					if(k==(licount-1))
+					{
+						k=1;
+					}
+					if(k==0)
+					{
+						k=licount-2;
+					}
+					dx=-pptwidth*k;
+					$(".pptbox ul.pptlist").css({"left":dx});
+					
+				});
+			}
+			
+			
+			var timer1=setInterval(function(){
+				k++;
+				pptplay();
+			},3000);
+			
+			$(".pptbox").hover(function(){
+				clearInterval(timer1);
+			},function(){
+				timer1=setInterval(function(){//此处的timer前面不要加var，如果加了  就是一个新的变量，清理的时候读取不到。
+					k++;
+					pptplay();
+				},3000);
+			});
+			
+			$(".pptbox ul.controls>li").click(function(){
+				this.onselectstart=function(){
+					return false;
+				};
+				var tempindex=$(".pptbox ul.controls>li").index(this);
+					k=tempindex+1;
+					pptplay();
+			});
+			
+			
+			
+			
+			
+			
+		</script>
+		
+		
+		
+		
+	</body>
+</html>
